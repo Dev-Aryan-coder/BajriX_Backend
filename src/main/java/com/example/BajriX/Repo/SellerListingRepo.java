@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.Repo;
+package com.example.BajriX.Repo;
 
 import com.example.BajriX.Entity.SellerListing;
 import com.example.BajriX.Entity.SellerStatus;

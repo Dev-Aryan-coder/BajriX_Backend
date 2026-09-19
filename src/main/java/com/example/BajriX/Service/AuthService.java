@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.Service;
+package com.example.BajriX.Service;
 
 import com.example.BajriX.Entity.PasswordResetToken;
 import com.example.BajriX.Entity.Seller;

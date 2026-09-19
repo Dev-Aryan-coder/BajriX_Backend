@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.dto;
+package com.example.BajriX.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

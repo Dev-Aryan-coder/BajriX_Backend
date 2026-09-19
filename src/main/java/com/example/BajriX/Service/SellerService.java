@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.Service;
+package com.example.BajriX.Service;
 
 import com.example.BajriX.Entity.Seller;
 import com.example.BajriX.Entity.SellerStatus;
@@ -26,7 +26,7 @@ public class SellerService {
     public SellerResponse getSellerById(Long id) {
         Seller seller = sellerRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Seller not found with id: " + id));
-        return new SellerResponse(seller.getId(), seller.getName(), seller.getEmail(), seller.getStatus().name(), seller.getCreatedAt());
+        return new SellerResponse(seller.getId(), seller.getName(), seller.getEmail(), seller.getStatus().name(), null, seller.getCreatedAt());
     }
 
     /**
@@ -36,7 +36,7 @@ public class SellerService {
      */
     public List<SellerResponse> getAllSellers() {
         return sellerRepo.findAll().stream()
-                .map(s -> new SellerResponse(s.getId(), s.getName(), s.getEmail(), s.getStatus().name(), s.getCreatedAt()))
+                .map(s -> new SellerResponse(s.getId(), s.getName(), s.getEmail(), s.getStatus().name(), null, s.getCreatedAt()))
                 .collect(Collectors.toList());
     }
 
@@ -49,6 +49,6 @@ public class SellerService {
                 .orElseThrow(() -> new IllegalArgumentException("Seller not found with id: " + id));
         seller.setStatus(status);
         Seller saved = sellerRepo.save(seller);
-        return new SellerResponse(saved.getId(), saved.getName(), saved.getEmail(), saved.getStatus().name(), saved.getCreatedAt());
+        return new SellerResponse(saved.getId(), saved.getName(), saved.getEmail(), saved.getStatus().name(), null, saved.getCreatedAt());
     }
 }

@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.Controller;
+package com.example.BajriX.Controller;
 
 import com.example.BajriX.Entity.SellerStatus;
 import com.example.BajriX.Service.SellerService;

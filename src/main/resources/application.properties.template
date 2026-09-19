@@ -1,0 +1,26 @@
+spring.application.name=BajriX
+
+# ===== MySQL Database Configuration =====
+# Copy this file to application.properties and fill in your real values.
+# application.properties is gitignored — never commit it.
+spring.datasource.url=jdbc:mysql://localhost:3306/bajriX_db?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=YOUR_MYSQL_ROOT_PASSWORD_HERE
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# ===== Email Configuration (SMTP) =====
+# For demo: leave placeholder — forgot-password token is logged to console, not emailed
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=YOUR_GMAIL_HERE@gmail.com
+spring.mail.password=YOUR_GMAIL_APP_PASSWORD_HERE
+
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+
+# ===== Server Port =====
+server.port=8080

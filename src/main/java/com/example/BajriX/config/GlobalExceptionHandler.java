@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.config;
+package com.example.BajriX.config;
 
 import com.example.BajriX.dto.ApiResponse;
 import org.springframework.http.HttpStatus;

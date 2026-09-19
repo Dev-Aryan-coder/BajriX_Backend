@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.dto;
+package com.example.BajriX.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

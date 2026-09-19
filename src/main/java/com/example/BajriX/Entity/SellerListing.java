@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.Entity;
+package com.example.BajriX.Entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;

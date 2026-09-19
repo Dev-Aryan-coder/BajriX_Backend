@@ -1,19 +1,19 @@
-﻿package com.example.BajriX.config;
+package com.example.BajriX.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Why this class exists:
- * Configures Cross-Origin Resource Sharing (CORS).
- *
- * How it works:
- * - Our React frontend runs on http://localhost:5173 (Vite default dev server).
- * - Our Spring Boot API runs on http://localhost:8080.
- * - Browsers block cross-origin requests by default for security.
- * - This configuration explicitly authorizes the frontend on port 5173 to call all /api/** endpoints
- *   with any HTTP method (GET, POST, PUT, PATCH, DELETE) and headers.
+ * Cross-Origin Resource Sharing (CORS) Configuration:
+ * Allows Vite frontend on any localhost port (5173, 5174, etc.) to call
+ * all backend API endpoints with credentials, custom headers, and all HTTP methods.
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -21,9 +21,26 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173", "http://localhost:3000")
+                .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*")
                 .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
+    }
+
+    @Bean
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistrationBean() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("http://localhost:*");
+        config.addAllowedOriginPattern("http://127.0.0.1:*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
     }
 }

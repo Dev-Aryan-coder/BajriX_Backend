@@ -1,4 +1,4 @@
-﻿package com.example.BajriX.config;
+package com.example.BajriX.config;
 
 import com.example.BajriX.Entity.Product;
 import com.example.BajriX.Entity.Seller;

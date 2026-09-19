@@ -37,3 +37,6 @@ build/
 
 ### VS Code ###
 .vscode/
+# ===== NEVER commit the real application.properties — it contains DB credentials =====
+# Use application-local.properties locally (already gitignored below)
+src/main/resources/application.properties
