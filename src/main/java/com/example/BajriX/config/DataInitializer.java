@@ -8,6 +8,7 @@ import com.example.BajriX.Repo.ProductRepo;
 import com.example.BajriX.Repo.SellerListingRepo;
 import com.example.BajriX.Repo.SellerRepo;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -22,6 +23,8 @@ import java.math.BigDecimal;
  * - BuildWell Supplies: token-buildwell-789
  * - Verma Store (PENDING): token-verma-999
  * - Gupta Bros (REJECTED): token-gupta-000
+ *
+ * All demo accounts are hashed securely with BCrypt.
  */
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -29,11 +32,13 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepo productRepo;
     private final SellerRepo sellerRepo;
     private final SellerListingRepo listingRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(ProductRepo productRepo, SellerRepo sellerRepo, SellerListingRepo listingRepo) {
+    public DataInitializer(ProductRepo productRepo, SellerRepo sellerRepo, SellerListingRepo listingRepo, PasswordEncoder passwordEncoder) {
         this.productRepo = productRepo;
         this.sellerRepo = sellerRepo;
         this.listingRepo = listingRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -42,28 +47,30 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
 
-        // 1. Create Sellers with demo session tokens
-        Seller shree = new Seller("Shree Traders", "shree@example.com", "password123");
+        String hashedPassword = passwordEncoder.encode("password123");
+
+        // 1. Create Sellers with demo session tokens and BCrypt passwords
+        Seller shree = new Seller("Shree Traders", "shree@example.com", hashedPassword);
         shree.setStatus(SellerStatus.APPROVED);
         shree.setSessionToken("token-shree-123");
         sellerRepo.save(shree);
 
-        Seller ramesh = new Seller("Ramesh Hardware", "ramesh@example.com", "password123");
+        Seller ramesh = new Seller("Ramesh Hardware", "ramesh@example.com", hashedPassword);
         ramesh.setStatus(SellerStatus.APPROVED);
         ramesh.setSessionToken("token-ramesh-456");
         sellerRepo.save(ramesh);
 
-        Seller buildwell = new Seller("BuildWell Supplies", "buildwell@example.com", "password123");
+        Seller buildwell = new Seller("BuildWell Supplies", "buildwell@example.com", hashedPassword);
         buildwell.setStatus(SellerStatus.APPROVED);
         buildwell.setSessionToken("token-buildwell-789");
         sellerRepo.save(buildwell);
 
-        Seller verma = new Seller("Verma Cement Store", "verma@example.com", "password123");
+        Seller verma = new Seller("Verma Cement Store", "verma@example.com", hashedPassword);
         verma.setStatus(SellerStatus.PENDING);
         verma.setSessionToken("token-verma-999");
         sellerRepo.save(verma);
 
-        Seller gupta = new Seller("Gupta Bros Materials", "gupta@example.com", "password123");
+        Seller gupta = new Seller("Gupta Bros Materials", "gupta@example.com", hashedPassword);
         gupta.setStatus(SellerStatus.REJECTED);
         gupta.setSessionToken("token-gupta-000");
         sellerRepo.save(gupta);

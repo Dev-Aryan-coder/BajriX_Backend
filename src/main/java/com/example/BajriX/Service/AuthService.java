@@ -8,6 +8,7 @@ import com.example.BajriX.Repo.SellerRepo;
 import com.example.BajriX.dto.LoginRequest;
 import com.example.BajriX.dto.RegisterRequest;
 import com.example.BajriX.dto.SellerResponse;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,25 +22,26 @@ import java.util.UUID;
  * Real Authorization Boundary Implementation:
  * 1. On login or register, we generate an unforgeable opaque token: `UUID.randomUUID().toString()`.
  * 2. We store this token against the seller in MySQL.
- * 3. The client receives this token and passes it in the `X-Session-Token` header on all protected requests.
- * 4. `resolveSellerByToken`: Server-side lookup that verifies the token. If invalid or missing,
+ * 3. Passwords are securely hashed with BCrypt (via PasswordEncoder).
+ * 4. Legacy plaintext passwords in demo database are automatically validated and upgraded to BCrypt.
+ * 5. `resolveSellerByToken`: Server-side lookup that verifies the token. If invalid or missing,
  *    it throws a `SecurityException` (403 Forbidden).
- *    This completely eliminates the vulnerability where a caller could tamper with the URL sellerId.
  */
 @Service
 public class AuthService {
 
     private final SellerRepo sellerRepo;
     private final PasswordResetTokenRepo tokenRepo;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(SellerRepo sellerRepo, PasswordResetTokenRepo tokenRepo) {
+    public AuthService(SellerRepo sellerRepo, PasswordResetTokenRepo tokenRepo, PasswordEncoder passwordEncoder) {
         this.sellerRepo = sellerRepo;
         this.tokenRepo = tokenRepo;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
-     * Registers a new seller account.
-     * Generates a new session token so the seller is immediately logged in upon registration.
+     * Registers a new seller account with BCrypt hashed password.
      */
     @Transactional
     public SellerResponse register(RegisterRequest req) {
@@ -50,7 +52,7 @@ public class AuthService {
         Seller seller = new Seller();
         seller.setName(req.getName());
         seller.setEmail(req.getEmail().toLowerCase().trim());
-        seller.setPasswordHash(req.getPassword());
+        seller.setPasswordHash(passwordEncoder.encode(req.getPassword()));
         seller.setStatus(SellerStatus.PENDING);
         seller.setCreatedAt(LocalDateTime.now());
 
@@ -62,14 +64,32 @@ public class AuthService {
     }
 
     /**
-     * Validates credentials and issues a fresh session token.
+     * Validates credentials with BCrypt and issues a fresh session token.
+     * Backwards-compatible: upgrades legacy unhashed demo passwords on successful login.
      */
     @Transactional
     public SellerResponse login(LoginRequest req) {
         Seller seller = sellerRepo.findByEmail(req.getEmail().toLowerCase().trim())
                 .orElseThrow(() -> new IllegalArgumentException("Incorrect email or password"));
 
-        if (!seller.getPasswordHash().equals(req.getPassword())) {
+        String rawPassword = req.getPassword();
+        String storedHash = seller.getPasswordHash();
+
+        boolean matches = false;
+        if (storedHash != null) {
+            if (storedHash.startsWith("$2a$") || storedHash.startsWith("$2b$") || storedHash.startsWith("$2y$")) {
+                matches = passwordEncoder.matches(rawPassword, storedHash);
+            } else {
+                // Graceful fallback for pre-seeded plaintext passwords in dev database
+                matches = storedHash.equals(rawPassword);
+                if (matches) {
+                    // Upgrade plaintext to BCrypt hash in DB
+                    seller.setPasswordHash(passwordEncoder.encode(rawPassword));
+                }
+            }
+        }
+
+        if (!matches) {
             throw new IllegalArgumentException("Incorrect email or password");
         }
 
@@ -117,7 +137,7 @@ public class AuthService {
         }
 
         Seller seller = resetToken.getSeller();
-        seller.setPasswordHash(newPassword);
+        seller.setPasswordHash(passwordEncoder.encode(newPassword));
         // Invalidate old session token on password change for security
         seller.setSessionToken(UUID.randomUUID().toString());
         sellerRepo.save(seller);
