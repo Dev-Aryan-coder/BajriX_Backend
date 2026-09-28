@@ -153,6 +153,7 @@ public class AuthService {
                 seller.getEmail(),
                 seller.getStatus().name(),
                 seller.getSessionToken(),
+                seller.getRole() != null ? seller.getRole() : "ROLE_SELLER",
                 seller.getCreatedAt()
         );
     }

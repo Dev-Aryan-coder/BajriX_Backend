@@ -5,16 +5,14 @@ import java.time.LocalDateTime;
 
 /**
  * Why this entity exists:
- * This represents a vendor or shop selling construction materials on BajriX (e.g. "Shree Traders").
+ * This represents a vendor, shop, or platform administrator on BajriX.
  *
  * Security & Authorization:
- * - Each seller has a unique email used for logging in.
- * - When a seller logs in or registers, the server generates a cryptographically random
+ * - Each seller/admin has a unique email used for logging in.
+ * - When logging in or registering, the server generates a cryptographically random
  *   opaque session token (UUID) stored in `sessionToken`.
- * - Every subsequent seller-scoped write/read request MUST provide this token via the
- *   `X-Session-Token` HTTP header.
- * - The backend resolves the seller strictly from this token — preventing any attacker
- *   from simply swapping the sellerId in the URL path to modify someone else''s data.
+ * - Every subsequent request provides this token via the `X-Session-Token` HTTP header.
+ * - Role: ROLE_SELLER by default, or ROLE_ADMIN for platform administrators.
  */
 @Entity
 @Table(name = "sellers")
@@ -41,6 +39,10 @@ public class Seller {
     @Column(nullable = false)
     private SellerStatus status = SellerStatus.PENDING;
 
+    // Role-based access control: ROLE_SELLER or ROLE_ADMIN
+    @Column(nullable = false)
+    private String role = "ROLE_SELLER";
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -51,6 +53,7 @@ public class Seller {
         this.email = email;
         this.passwordHash = passwordHash;
         this.status = SellerStatus.PENDING;
+        this.role = "ROLE_SELLER";
         this.createdAt = LocalDateTime.now();
     }
 
@@ -71,6 +74,9 @@ public class Seller {
 
     public SellerStatus getStatus() { return status; }
     public void setStatus(SellerStatus status) { this.status = status; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

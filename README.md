@@ -76,6 +76,15 @@ The project consists of two independent, clean repositories:
   ```
 - Unapproved (`PENDING`, `REJECTED`) sellers and inactive listings are filtered directly at the database engine level.
 
+### Admin Catalogue Governance & Referential Integrity Protection (Product Deletion Safeguard)
+- Accessible via `@RequestMapping("/api/v1/BajriXadmin@")` and secured with `ROLE_ADMIN` authentication (`admin@bajrix.com` / `Admin@123`).
+- **Referential Integrity on Product Deletion**:
+  - In a multi-seller catalogue, a master `Product` cannot be deleted if active vendor offers (`SellerListing`) are currently bound to it.
+  - Blindly executing `DELETE FROM products WHERE id = ?` would create orphaned foreign key references, corrupt buyer detail comparisons, and break merchant stock records.
+  - In `AdminService.deleteProduct()`, the backend checks `listingRepo.existsByProductId(id)`. If listings exist, it immediately halts and returns an HTTP 400 Bad Request error:
+    > *"Cannot delete product: Existing seller listings are attached to it. Please remove or archive those listings first."*
+  - This ensures catalogue integrity while allowing admins to safely delete newly added or unlisted products without data corruption.
+
 ---
 
 ## 3. Assumptions Made

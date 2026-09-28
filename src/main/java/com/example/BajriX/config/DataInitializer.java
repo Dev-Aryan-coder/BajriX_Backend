@@ -43,6 +43,15 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+                // Master Admin Account for Admin Dashboard
+        if (!sellerRepo.existsByEmail("admin@bajrix.com")) {
+            Seller admin = new Seller("BajriX Admin", "admin@bajrix.com", passwordEncoder.encode("Admin@123"));
+            admin.setStatus(SellerStatus.APPROVED);
+            admin.setRole("ROLE_ADMIN");
+            admin.setSessionToken("token-admin-root");
+            sellerRepo.save(admin);
+        }
+
         if (productRepo.count() > 0) {
             return;
         }
